@@ -3,6 +3,14 @@ const app = express();
 const port = 3000;
 const request = require('request');
 
+// Twilio Config
+//TODO: MAKE THE ACCOUNT SID AND AUTH TOKEN PRIVATE. ENDGAMEJS 10.0 FEATURE
+const accountSid = 'AC724694e6c231af004335dfa56ce7dca3';
+const authToken = 'ff2ea2074a2c2f185c357ac081bdc399';
+const client = require('twilio')(accountSid, authToken);
+const phoneNumbers = ['+16472077557', '+16478622877', '+16476099810'];
+
+
 function isEndgameOut() {
 
     endgameOut = false;
@@ -46,7 +54,7 @@ function isEndgameOut() {
 
                 let page = body.toString();
 
-                resolve(scrapeResult || page.includes("Endgame"));
+                resolve(scrapeResult && page.includes("Endgame"));
             });
         });
     }
@@ -67,6 +75,8 @@ function isEndgameOut() {
 
 let timeout = 10000;
 
+
+
 let requestLoop = setInterval(function() {
     let releaseDate = new Date('April 26th, 2019');
     let today = new Date();
@@ -75,9 +85,40 @@ let requestLoop = setInterval(function() {
     // let timeout = Math.max(difference / 3000, 30000);
     timeout = 10000;
 
+    var promises = [];
+
+    // add all the different send promises to this array like following
+
+
+
     isEndgameOut().then(function(data) {
+        if(data){
+            for(let i = 0; i < phoneNumbers.length; i++){
+                console.log(phoneNumbers[i]);
+                promises.push(
+                    client.messages.create({
+                        body: 'Endgame is OUTTTT!!!!! BUY TICKETS NOW!',
+                        to:   phoneNumbers[i],  // Text this number
+                        from: '+16479316799' // From a valid Twilio number
+                    })
+                );
+            }
+        }
+        return data;
+    }).then(function(data) {
         console.log(data ? "Endgame is out! Go buy tickets" : "Endgame is not out yet");
+        if(data){
+            clearInterval(requestLoop);
+        }
+       
     });
+
+
+    var finalPromise = Promise.all(promises).then((data)=>{
+        console.log(data);
+    });
+
+
 }, timeout);
 
 app.get('/', (req, res) => res.send('Hello World!'));
@@ -85,7 +126,19 @@ app.get('/', (req, res) => res.send('Hello World!'));
 app.get('/endgame', (req, res) => {
 
     isEndgameOut().then(function(data) {
-        res.send(data ? "Endgame is out! Go buy tickets" : "Endgame is not out yet");
+        if(data){
+            for(let i = 0; i < phoneNumbers.length; i++){
+                console.log(i);
+                client.messages.create({
+                    body: 'This is ENDGAMEJS',
+                    from: '+16479316799',
+                    to: phoneNumbers[i]
+                }).then(message => console.log(message.sid));  
+            }
+        }
+        return data;
+    }).then(function (data){
+        res.send(data ? "Endgame is out! Go buy tickets" : "Endgame is not out yet"); 
     });
 
 });
