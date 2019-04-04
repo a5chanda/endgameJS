@@ -109,6 +109,7 @@ let requestLoop = setInterval(function() {
         console.log(data ? "Endgame is out! Go buy tickets" : "Endgame is not out yet");
         if(data){
             clearInterval(requestLoop);
+            app.close();
         }
        
     });
