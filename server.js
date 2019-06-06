@@ -5,10 +5,10 @@ const request = require('request');
 
 // Twilio Config
 //TODO: MAKE THE ACCOUNT SID AND AUTH TOKEN PRIVATE. ENDGAMEJS 10.0 FEATURE
-const accountSid = 'AC724694e6c231af004335dfa56ce7dca3';
-const authToken = 'ff2ea2074a2c2f185c357ac081bdc399';
+const accountSid = '';
+const authToken = '';
 const client = require('twilio')(accountSid, authToken);
-const phoneNumbers = ['+16472077557', '+16478622877', '+16476099810'];
+const phoneNumbers = [''];
 
 
 function isEndgameOut() {
